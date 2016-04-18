@@ -37,7 +37,7 @@ class Point(object):
         else:
             return NotImplemented
         
-    def __isub_(self, other):
+    def __isub__(self, other):
         self.x -= other.x
         self.y -= other.y
     

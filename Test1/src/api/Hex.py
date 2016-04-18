@@ -2,7 +2,7 @@ import math
 from api.Point import Point
 
 class Hex(object):
-    SQRT3 = 1.73205080757
+    SQRT3 = 3.0**0.5
     S_ANGLE = 0.5
     DR = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]
     DG = [(2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1)]
@@ -11,7 +11,7 @@ class Hex(object):
     def __init__(self, q, r):
         self.q = q
         self.r = r
-        self.s = -q -r
+        self.s = (-q) + (-r)
         
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -43,7 +43,7 @@ class Hex(object):
     def __iadd__(self, other):
         self.q += other.q
         self.r += other.r
-        self.s = -self.q -self.r
+        self.s = (-self.q) + (-self.r)
         
     def __sub__(self, other):
         if isinstance(other, self.__class__):
@@ -51,10 +51,10 @@ class Hex(object):
         else:
             return NotImplemented
         
-    def __isub_(self, other):
+    def __isub__(self, other):
         self.q -= other.q
         self.r -= other.r
-        self.s = -self.q -self.r
+        self.s = (-self.q) + (-self.r)
     
     def round(self):
         q = int(round(self.q))
@@ -73,24 +73,20 @@ class Hex(object):
         return Hex(q, r)
     
     def add(self, h):
-        self.q += h.q
-        self.r += h.r
-        self.s = -self.q -self.r
+        self += h
         
     def substract(self, h):
-        self.q -= h.q
-        self.r -= h.r
-        self.s = -self.q -self.r
+        self -= h
         
     def scale(self, k):
         self.q *= k
         self.r *= k
-        self.s = -self.q -self.r
+        self.s = (-self.q) + (-self.r)
         
     def rotate60(self):
         self.r = -self.q
         self.q = -self.s
-        self.s = -self.q -self.r
+        self.s = (-self.q) + (-self.r)
     
     def getNeighbor(self, d):
         n = Hex(Hex.DR[d])
@@ -109,8 +105,8 @@ class Hex(object):
         return h.__sub__(self)
     
     def getCenter(self, o, sz):
-        x = int(round(o.x + (sz * Hex.SQRT3 * (self.q + (self.r / 2)))))
-        y = int(round(o.y + (sz * 1.5 * self.r)))
+        x = int(round(o.x + (sz * Hex.SQRT3 * (self.q + self.r / 2.0))))
+        y = int(round(o.y + (sz * (3.0 / 2.0) * self.r)))
         return Point(x, y)
         
     def getCornerOffset(self, sz, cr):

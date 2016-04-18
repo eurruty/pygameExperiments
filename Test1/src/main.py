@@ -18,6 +18,8 @@ salir = False
 
 testHex = Hex(0, 0)
 
+centerCoord = None
+hexCenter = None
 cornerCoords = None
 corners = []
 
@@ -27,6 +29,7 @@ def init():
     global imgPutin
     global corners
     global clock
+    global hexCenter
     
     pygame.init()
 
@@ -42,6 +45,10 @@ def init():
 
     imgBackground.blit(imgPutin, SCREEN_ORIGIN)
     
+    hexCenter = pygame.Surface((3, 3))
+    hexCenter = hexCenter.convert()
+    hexCenter.fill((0, 255, 0))
+    
     clock = pygame.time.Clock()
     
 def update():
@@ -49,6 +56,7 @@ def update():
     global screen
     global isFullscreen
     global testHex
+    global centerCoord
     global cornerCoords
     global corners
 
@@ -75,7 +83,9 @@ def update():
                 testHex.substract(HEX_X)
             if event.key == pygame.K_RIGHT:
                 testHex.add(HEX_X)
-            
+    
+    print(testHex)
+    centerCoord = testHex.getCenter(CENTER, 30)
     cornerCoords = testHex.getCorners(CENTER, 30)
     corners = []
     for x in range(len(cornerCoords)):
@@ -85,6 +95,7 @@ def update():
 
 def render():
     screen.blit(imgBackground, (0, 0))
+    screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
     for x in range(len(corners)):
         screen.blit(corners[x], (cornerCoords[x].x, cornerCoords[x].y))
     pygame.display.flip()
