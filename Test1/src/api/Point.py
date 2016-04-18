@@ -18,6 +18,9 @@ class Point(object):
     def __hash__(self):
         return hash(tuple(sorted(self.__dict__.items())))
     
+    def __str__(self):
+        return ("[" + str(self.x) + ", " + str(self.y) + "]")
+    
     def __add__(self, other):
         if isinstance(other, self.__class__):
             return Point(self.x + other.x, self.y + other.y)

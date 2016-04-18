@@ -28,6 +28,9 @@ class Hex(object):
     def __hash__(self):
         return hash(tuple(sorted(self.__dict__.items())))
     
+    def __str__(self):
+        return ("[" + str(self.q) + ", " + str(self.r) + ", " + str(self.s) + "]")
+    
     def __abs__(self):
         return (abs(self.q) + abs(self.r) + abs(self.s)) // 2
     
@@ -116,12 +119,25 @@ class Hex(object):
         y = int(round(sz * math.sin(a)))
         return Point(x, y)
     
+    def getCornerOffsets(self, sz):
+        corners = []
+        for x in range(0, 6):
+            corners.append(self.getCornerOffset(sz, x))
+        return corners
+    
     def getCorner(self, o, sz, cr):
         ctr = self.getCenter(o, sz)
         off = self.getCornerOffset(sz, cr)
         x = ctr.x + off.x
         y = ctr.y + off.y
         return Point(x, y)
+    
+    def getCorners(self, o, sz):
+        ctr = self.getCenter(o, sz)
+        corners = []
+        for x in range(0, 6):
+            corners.append(ctr + self.getCornerOffset(sz, x))
+        return corners
     
     @staticmethod
     def pixelToHex(p, o, sz):
