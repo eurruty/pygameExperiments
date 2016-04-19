@@ -9,7 +9,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
 SCREEN_ORIGIN = (0, 0)
-CENTER = Point(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+CENTER = Point(0, 0)
 
 isFullscreen = False
 screen = None
@@ -78,16 +78,6 @@ def update():
                     screen = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN)
                 else:
                     screen = pygame.display.set_mode(RESOLUTION)
-                    
-            if event.key == pygame.K_UP:
-                testHex.substract(HEX_Y)
-            if event.key == pygame.K_DOWN:
-                testHex.add(HEX_Y)
-            if event.key == pygame.K_LEFT:
-                testHex.substract(HEX_X)
-            if event.key == pygame.K_RIGHT:
-                testHex.add(HEX_X)
-                
     
     p = pygame.mouse.get_pos()
     mouseCoord = Point(p[0], p[1])
