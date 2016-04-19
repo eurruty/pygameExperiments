@@ -7,7 +7,6 @@ class Hex(object):
     DR = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]
     DG = [(2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1)]
     
-    
     def __init__(self, q, r):
         self.q = q
         self.r = r
@@ -64,13 +63,15 @@ class Hex(object):
         r_diff = abs(r - self.r)
         s_diff = abs(s - self.s)
         if q_diff > r_diff and q_diff > s_diff:
-            q = -r - s
+            q = (-r) + (-s)
         else:
             if r_diff > s_diff:
-                r = -q - s
+                r = (-q) + (-s)
             else:
-                s = -q - r
-        return Hex(q, r)
+                s = (-q) + (-r)
+        self.q = q
+        self.r = r
+        self.s = s
     
     def add(self, h):
         self += h
@@ -137,7 +138,9 @@ class Hex(object):
     
     @staticmethod
     def pixelToHex(p, o, sz):
-        pt = Point((p.x - o.x) / sz, (p.y - o.y) / sz)
-        q = ((Hex.SQRT3 / 3.0) * pt.x) + ((-1.0 / 3.0) * pt.y)
-        r = 1.5 * pt.y
-        return Hex(q, r)
+        pt = Point(p.x - o.x, p.y - o.y)
+        q = ((pt.x * Hex.SQRT3 / 3.0) - (pt.y / 3.0)) / (sz * 1.0)
+        r = (pt.y * 2.0 / 3.0) / (sz * 1.0)
+        h = Hex(q, r)
+        h.round()
+        return h

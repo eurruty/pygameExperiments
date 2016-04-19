@@ -4,6 +4,7 @@ from api.Hex import Hex
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
+HEX_SIZE = 30
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -17,6 +18,8 @@ clock = None
 salir = False
 
 testHex = Hex(0, 0)
+
+mouseCoord = None
 
 centerCoord = None
 hexCenter = None
@@ -56,6 +59,7 @@ def update():
     global screen
     global isFullscreen
     global testHex
+    global mouseCoord
     global centerCoord
     global cornerCoords
     global corners
@@ -83,10 +87,17 @@ def update():
                 testHex.substract(HEX_X)
             if event.key == pygame.K_RIGHT:
                 testHex.add(HEX_X)
+                
     
-    print(testHex)
-    centerCoord = testHex.getCenter(CENTER, 30)
-    cornerCoords = testHex.getCorners(CENTER, 30)
+    p = pygame.mouse.get_pos()
+    mouseCoord = Point(p[0], p[1])
+    mouseHex = Hex.pixelToHex(mouseCoord, CENTER, HEX_SIZE)
+    if mouseHex != testHex:
+        testHex = mouseHex
+        print(testHex)
+    
+    centerCoord = testHex.getCenter(CENTER, HEX_SIZE)
+    cornerCoords = testHex.getCorners(CENTER, HEX_SIZE)
     corners = []
     for x in range(len(cornerCoords)):
         corners.append(pygame.Surface((3, 3)))
