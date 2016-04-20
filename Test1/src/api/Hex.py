@@ -136,6 +136,14 @@ class Hex(object):
             corners.append(ctr + self.getCornerOffset(sz, x))
         return corners
     
+    def getCornersAsList(self, o, sz):
+        ctr = self.getCenter(o, sz)
+        corners = []
+        for x in range(0, 6):
+            p = ctr + self.getCornerOffset(sz, x)
+            corners.append((p.x, p.y))
+        return corners
+    
     @staticmethod
     def pixelToHex(p, o, sz):
         pt = Point(p.x - o.x, p.y - o.y)

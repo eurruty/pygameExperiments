@@ -1,5 +1,5 @@
 class Point(object):
-    def __init__(self, x = None, y = None):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
     
@@ -43,3 +43,6 @@ class Point(object):
     
     def __abs__(self):
         return (self.x**2 + self.y**2)**0.5
+    
+    def getCoords(self):
+        return (self.x, self.y)
