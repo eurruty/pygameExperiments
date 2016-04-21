@@ -5,7 +5,7 @@ from api.HexMap import HexMap
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
-HEX_SIZE = 40
+HEX_SIZE = 60
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -22,7 +22,7 @@ testHex = Hex(0, 0)
 
 mouseCoord = None
 
-map = HexMap(20,10)
+map = HexMap(6,6)
 centerCoord = None
 hexCenter = None
 cornerCoords = None
@@ -86,6 +86,7 @@ def update():
     if mouseHex != testHex:
         testHex = mouseHex
         print(testHex)
+        print map.inBounds(testHex)
     
     centerCoord = testHex.getCenter(CENTER, HEX_SIZE)
     corners = testHex.getCornersAsList(CENTER, HEX_SIZE)
@@ -95,9 +96,9 @@ def render():
     for i in range(len(map.map)):
         for j in range(len(map.map[i])):
             currHexCorners = map.map[i][j].getCornersAsList(CENTER, HEX_SIZE)
-            pygame.draw.lines(screen, (255,255,255), True, currHexCorners, 1)
+            pygame.draw.lines(screen, (255,255,255), True, currHexCorners, 6)
     screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
-    pygame.draw.lines(screen, (255,0,0), True, corners, 1)
+    pygame.draw.lines(screen, (255,0,0), True, corners, 2)
     pygame.display.flip()
     
 def destroy():

@@ -2,9 +2,16 @@ import math
 from api.Point import Point
 
 class Hex(object):
+    
     SQRT3 = 3.0**0.5
+    
+    # ~30 CCW
     S_ANGLE = 0.5
+    
+    #CLOCK[  3 ]  [  1  ]  [  11 ]  [  9  ]  [  7  ]  [  5 ]
     DR = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]
+    
+    #CLOCK[  2  ]  [  12 ]  [  10  ]  [  8  ]  [  6  ]  [  4 ]
     DG = [(2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1)]
     
     def __init__(self, q, r):
@@ -14,7 +21,7 @@ class Hex(object):
         
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
+            return (self.q == other.q and self.r == other.r and self.s == other.s)
         else:
             return NotImplemented
     
@@ -25,7 +32,7 @@ class Hex(object):
             return NotImplemented
         
     def __hash__(self):
-        return hash(tuple(sorted(self.__dict__.items())))
+        return hash(self.q, self.r, self.s)
     
     def __str__(self):
         return ("[" + str(self.q) + ", " + str(self.r) + ", " + str(self.s) + "]")
@@ -72,6 +79,9 @@ class Hex(object):
         self.q = q
         self.r = r
         self.s = s
+        
+    def getAxialCoords(self):
+        return(self.q, self.r)
     
     def add(self, h):
         self += h
@@ -94,16 +104,23 @@ class Hex(object):
         n += self
         return n
     
+    def getNeighbors(self):
+        ns = []
+        for i in range(0, 6):
+            n = self.getNeighbor(i)
+            ns.append(n)
+        return ns
+    
     def getDiagNeighbor(self, d):
         n = Hex(Hex.DG[d])
         n += self
         return n
     
-    def getLength(self):
-        return self.__abs__()
+    def getLength(self, h):
+        return (h - self)
     
     def getDistance(self, h):
-        return h.__sub__(self)
+        return (abs(h.q - self.q) + abs(h.r - self.r) + abs(h.s - self.s)) // 2
     
     def getCenter(self, o, sz):
         x = int(round(o.x + (sz * Hex.SQRT3 * (self.q + self.r / 2.0))))
