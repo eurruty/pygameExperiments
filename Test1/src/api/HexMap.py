@@ -1,7 +1,10 @@
 from Hex import Hex
+from HexNode import HexNode
 from PriorityQueue import PriorityQueue
 
 class HexMap(object):
+    TURNING_COST = [0.00, 0.33, 0.66, 1.00, 0.66, 0.33]
+    
     def __init__(self, height, width):
         
         self.height = height
@@ -44,35 +47,80 @@ class HexMap(object):
     def inBounds(self, h):
         return 0 <= (h.q + (h.r // 2)) < self.width and 0 <= h.r < self.height
     
-    def search(self, start, goal):
+    def getNeighborNodes(self, h):
+        nNodes = []
+        for i in range(0, 6):
+            nHex = h.getNeighbor(i)
+            if self.inBounds(nHex):
+                nNode = HexNode(nHex, i)
+                nNodes.append(nNode)
+        return nNodes
+    
+    def search(self, startHex, goalHex):
+        startNode = HexNode(startHex, None)
+        goalNode = HexNode(goalHex, None)
         frontier = PriorityQueue()
-        frontier.put(start, 0)
-        came_from = {}
-        cost_so_far = {}
-        came_from[start] = None
-        cost_so_far[start] = 0
+        frontier.put(startNode, 0)
+        cameFrom = {}
+        currCost = {}
+        cameFrom[startNode] = None
+        currCost[startNode] = 0
         
         while not frontier.empty():
-            current = frontier.get()
+            currNode = frontier.get()
             
-            if current == goal:
+            if currNode.h == goalNode.h:
                 break
             
-            for n in current.getNeighbors():
-                if self.inBounds(n):
-                    new_cost = cost_so_far[current] + HexMap.cost(current, n)
-                    if n not in cost_so_far or new_cost < cost_so_far[n]:
-                        cost_so_far[n] = new_cost
-                        priority = new_cost + HexMap.heuristic(goal, n)
-                        frontier.put(n, priority)
-                        came_from[n] = current
+            for nextNode in self.getNeighborNodes(currNode.h):
+                newCost = currCost[currNode] + HexMap.cost(currNode, nextNode)
+                if nextNode not in currCost or newCost < currCost[nextNode]:
+                    currCost[nextNode] = newCost
+                    priority = newCost + HexMap.heuristic(goalNode, nextNode)
+                    frontier.put(nextNode, priority)
+                    cameFrom[nextNode] = currNode
         
-        return came_from, cost_so_far
+        return cameFrom, currCost
+    
+    def getPath(self, startHex, goalHex):
+        s = self.search(startHex, goalHex)
+        endNode = None
+        cost = None
+        for hexNode in s[0]:
+            if hexNode.h == goalHex:
+                if endNode == None:
+                    endNode = hexNode
+                    cost = s[1][hexNode]
+                elif cost > s[1][hexNode]:
+                    endNode = hexNode
+                    cost = s[1][hexNode]
+        
+        path = []
+        
+        if endNode != None:
+            path.append(endNode.h)
+            currNode = s[0][endNode]
+            if currNode != None:
+                while currNode.h != startHex:
+                    path.append(currNode.h)
+                    currNode = s[0][currNode]
+                path.append(startHex)
+        
+        return path
     
     @staticmethod
     def heuristic(a, b):
-        return a.getDistance(b)
-    
+        return a.h.getDistance(b.h)
+        
     @staticmethod
     def cost(a, b):
-        return 1
+        return 1 + HexMap.turningCost(a, b)
+    
+    @staticmethod
+    def turningCost(a, b):
+        if a.d == None or b.d == None:
+            return 0
+        else:
+            diff = abs(a.d - b.d)
+            return HexMap.TURNING_COST[diff]
+        

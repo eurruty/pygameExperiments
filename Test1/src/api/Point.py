@@ -28,8 +28,7 @@ class Point(object):
             return NotImplemented
         
     def __iadd__(self, other):
-        self.x += other.x
-        self.y += other.y
+        return self.__add__(other)
     
     def __sub__(self, other):
         if isinstance(other, self.__class__):
@@ -38,8 +37,7 @@ class Point(object):
             return NotImplemented
         
     def __isub__(self, other):
-        self.x -= other.x
-        self.y -= other.y
+        return self.__sub__(other)
     
     def __abs__(self):
         return (self.x**2 + self.y**2)**0.5

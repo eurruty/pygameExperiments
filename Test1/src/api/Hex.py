@@ -32,7 +32,7 @@ class Hex(object):
             return NotImplemented
         
     def __hash__(self):
-        return hash(self.q, self.r, self.s)
+        return hash(tuple(sorted(self.__dict__.items())))
     
     def __str__(self):
         return ("[" + str(self.q) + ", " + str(self.r) + ", " + str(self.s) + "]")
@@ -47,9 +47,7 @@ class Hex(object):
             return NotImplemented
     
     def __iadd__(self, other):
-        self.q += other.q
-        self.r += other.r
-        self.s = (-self.q) + (-self.r)
+        return self.__add__(other)
         
     def __sub__(self, other):
         if isinstance(other, self.__class__):
@@ -58,9 +56,7 @@ class Hex(object):
             return NotImplemented
         
     def __isub__(self, other):
-        self.q -= other.q
-        self.r -= other.r
-        self.s = (-self.q) + (-self.r)
+        return self.__sub__(other)
     
     def round(self):
         q = int(round(self.q))
@@ -100,7 +96,7 @@ class Hex(object):
         self.s = (-self.q) + (-self.r)
     
     def getNeighbor(self, d):
-        n = Hex(Hex.DR[d])
+        n = Hex(Hex.DR[d][0], Hex.DR[d][1])
         n += self
         return n
     
@@ -112,7 +108,7 @@ class Hex(object):
         return ns
     
     def getDiagNeighbor(self, d):
-        n = Hex(Hex.DG[d])
+        n = Hex(Hex.DG[d][0], Hex.DG[d][1])
         n += self
         return n
     

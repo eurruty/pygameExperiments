@@ -11,4 +11,4 @@ class PriorityQueue:
         heapq.heappush(self.ele, (priority, item))
     
     def get(self):
-        return heapq.heappop(self.elements)[1]
+        return heapq.heappop(self.ele)[1]
