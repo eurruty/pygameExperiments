@@ -1,7 +1,8 @@
 import pygame
 from api.Point import Point
 from api.Hex import Hex
-from api.HexMap import HexMap
+#from api.HexMap import HexMap
+from game.GameMap import GameMap
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
@@ -22,7 +23,8 @@ testHex = Hex(0, 0)
 
 mouseCoord = None
 
-hexMap = HexMap(12, 13)
+hexMap = GameMap(12, 13, True, 1)
+hexMap.randomizePassability()
 centerCoord = None
 hexCenter = None
 cornerCoords = None
@@ -87,7 +89,7 @@ def update():
     mouseHex = Hex.pixelToHex(Point(p[0], p[1]), CENTER, HEX_SIZE)
     if mouseHex != testHex:
         testHex = mouseHex
-        path = hexMap.getPath(Hex(0, 0), mouseHex)
+        path = hexMap.getPath(Hex(3, 6), mouseHex)
     
     centerCoord = testHex.getCenter(CENTER, HEX_SIZE)
     corners = testHex.getCornersAsList(CENTER, HEX_SIZE)
@@ -96,13 +98,15 @@ def render():
     screen.blit(imgBackground, (0, 0))
     for i in range(len(hexMap.map)):
         for j in range(len(hexMap.map[i])):
-            currHexCorners = hexMap.map[i][j].getCornersAsList(CENTER, HEX_SIZE)
-            pygame.draw.lines(screen, (255,255,255), True, currHexCorners, 4)
+            currHex = hexMap.map[i][j]
+            currHexCorners = currHex.getCornersAsList(CENTER, HEX_SIZE)
+            if currHex.p:
+                pygame.draw.aalines(screen, (255,255,255), True, currHexCorners, 4)
     screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
     for i in range(len(path)):
         currHexCorners = path[i].getCornersAsList(CENTER, HEX_SIZE)
-        pygame.draw.lines(screen, (0,0,255), True, currHexCorners, 2)
-    pygame.draw.lines(screen, (255,0,0), True, corners, 2)
+        pygame.draw.aalines(screen, (0,0,255), True, currHexCorners, 2)
+    pygame.draw.aalines(screen, (255,0,0), True, corners, 2)
     pygame.display.flip()
     
 def destroy():

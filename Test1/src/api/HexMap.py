@@ -3,6 +3,13 @@ from HexNode import HexNode
 from PriorityQueue import PriorityQueue
 
 class HexMap(object):
+    #CLOCK[  3 ]  [  1  ]  [  11 ]  [  9  ]  [  7  ]  [  5 ]
+    DR = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]
+    
+    #CLOCK[  2  ]  [  12 ]  [  10  ]  [  8  ]  [  6  ]  [  4 ]
+    DG = [(2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1)]
+    
+    #ANGLE         [  0] [ 60] [120] [180] [120] [ 60]
     TURNING_COST = [0.00, 0.33, 0.66, 1.00, 0.66, 0.33]
     
     def __init__(self, height, width):
@@ -24,18 +31,18 @@ class HexMap(object):
                 self.map[i][j] = Hex(q, r)
     
     def getHex(self, q, r):
-        x = q - (r // 2)
-        y = r
-        if 0 <= x < self.width and 0 <= y < self.height:
-            return self.map[x][y]
+        i = r
+        j = q + (r // 2)
+        if 0 <= j < self.width and 0 <= i < self.height:
+            return self.map[i][j]
         else:
             return None
     
     def setHex(self, h):
         if self.inBounds(h):
-            x = h.q + (h.r // 2)
-            y = h.r
-            self.map[x][y] = h
+            i = h.r
+            j = h.q + (h.r // 2)
+            self.map[i][j] = h
     
     def getList(self):
         hexList = ()
@@ -47,11 +54,26 @@ class HexMap(object):
     def inBounds(self, h):
         return 0 <= (h.q + (h.r // 2)) < self.width and 0 <= h.r < self.height
     
+    def rotate60(self, center, h):
+        q = center.q - (h.s - center.s)
+        r = center.r - (h.q - center.q)
+        return self.getHex(q, r)
+    
+    def getNeighbor(self, h, d):
+        q = h.q + HexMap.DR[d][0]
+        r = h.r + HexMap.DR[d][1]
+        return self.getHex(q, r)
+    
+    def getDiagNeighbor(self, h, d):
+        q = h.q + HexMap.DG[d][0]
+        r = h.r + HexMap.DG[d][1]
+        return self.getHex(q, r)
+    
     def getNeighborNodes(self, h):
         nNodes = []
         for i in range(0, 6):
-            nHex = h.getNeighbor(i)
-            if self.inBounds(nHex):
+            nHex = self.getNeighbor(h, i)
+            if nHex != None:
                 nNode = HexNode(nHex, i)
                 nNodes.append(nNode)
         return nNodes
@@ -73,7 +95,7 @@ class HexMap(object):
                 break
             
             for nextNode in self.getNeighborNodes(currNode.h):
-                newCost = currCost[currNode] + HexMap.cost(currNode, nextNode)
+                newCost = currCost[currNode] + self.cost(currNode, nextNode)
                 if nextNode not in currCost or newCost < currCost[nextNode]:
                     currCost[nextNode] = newCost
                     priority = newCost + HexMap.heuristic(goalNode, nextNode)
@@ -108,19 +130,21 @@ class HexMap(object):
         
         return path
     
-    @staticmethod
-    def heuristic(a, b):
-        return a.h.getDistance(b.h)
-        
-    @staticmethod
-    def cost(a, b):
-        return 1 + HexMap.turningCost(a, b)
+    def cost(self, a, b):
+        return 1 + self.turningCost(a, b)
     
-    @staticmethod
-    def turningCost(a, b):
+    def turningCost(self, a, b):
         if a.d == None or b.d == None:
             return 0
         else:
             diff = abs(a.d - b.d)
             return HexMap.TURNING_COST[diff]
+    
+    @staticmethod
+    def distance(a, b):
+        return (abs(b.q - a.q) + abs(b.r - a.r) + abs(b.s - a.s)) // 2
+    
+    @staticmethod
+    def heuristic(a, b):
+        return HexMap.distance(a.h, b.h)
         
