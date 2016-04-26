@@ -4,6 +4,7 @@ from api.Point import Point
 class Hex(object):
     
     SQRT3 = 3.0**0.5
+    #SQRT3 = 7.0/4.0
     
     # ~30 CCW
     S_ANGLE = 0.5
@@ -62,14 +63,14 @@ class Hex(object):
         self -= h
     
     def getCenter(self, o, sz):
-        x = int(round(o.x + (sz * Hex.SQRT3 * (self.q + self.r / 2.0))))
-        y = int(round(o.y + (sz * (3.0 / 2.0) * self.r)))
+        x = o.x + (sz * Hex.SQRT3 * (self.q + (self.r / 2.0)))
+        y = o.y + (sz * (3.0 / 2.0) * self.r)
         return Point(x, y)
         
     def getCornerOffset(self, sz, cr):
         a = 2.0 * math.pi * ((cr + Hex.S_ANGLE) / 6)
-        x = int(round(sz * math.cos(a)))
-        y = int(round(sz * math.sin(a)))
+        x = sz * math.cos(a)
+        y = sz * math.sin(a)
         return Point(x, y)
     
     def getCornerOffsets(self, sz):
@@ -97,6 +98,14 @@ class Hex(object):
         corners = []
         for x in range(0, 6):
             p = ctr + self.getCornerOffset(sz, x)
+            corners.append((p.x, p.y))
+        return corners
+    
+    def getCornersStroked(self, o, sz):
+        ctr = self.getCenter(o, sz)
+        corners = []
+        for x in range(0, 6):
+            p = ctr + self.getCornerOffset(sz - 2, x)
             corners.append((p.x, p.y))
         return corners
     

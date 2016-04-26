@@ -5,3 +5,4 @@ class GameHex(Hex):
         Hex.__init__(self, q, r)
         self.p = p
         self.w = w
+        self.o = None

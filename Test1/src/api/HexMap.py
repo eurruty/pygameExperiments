@@ -10,7 +10,7 @@ class HexMap(object):
     DG = [(2, -1), (1, -2), (-1, -1), (-2, 1), (-1, 2), (1, 1)]
     
     #ANGLE         [  0] [ 60] [120] [180] [120] [ 60]
-    TURNING_COST = [0.00, 0.33, 0.66, 1.00, 0.66, 0.33]
+    TURNING_COST = [0.00, 0.50, 1.00, 1.50, 1.00, 0.50]
     
     def __init__(self, height, width):
         
@@ -63,6 +63,14 @@ class HexMap(object):
         q = h.q + HexMap.DR[d][0]
         r = h.r + HexMap.DR[d][1]
         return self.getHex(q, r)
+    
+    def getNeighbors(self, h):
+        n = ()
+        for i in range(0, 6):
+            q = h.q + HexMap.DR[i][0]
+            r = h.r + HexMap.DR[i][1]
+            n.append(self.getHex(q, r))
+        return n
     
     def getDiagNeighbor(self, h, d):
         q = h.q + HexMap.DG[d][0]
