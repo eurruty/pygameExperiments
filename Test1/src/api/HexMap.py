@@ -52,7 +52,10 @@ class HexMap(object):
         return hexList
     
     def inBounds(self, h):
-        return 0 <= (h.q + (h.r // 2)) < self.width and 0 <= h.r < self.height
+        if h != None:
+            return 0 <= (h.q + (h.r // 2)) < self.width and 0 <= h.r < self.height
+        else:
+            return False
     
     def rotate60(self, center, h):
         q = center.q - (h.s - center.s)
@@ -113,28 +116,28 @@ class HexMap(object):
         return cameFrom, currCost
     
     def getPath(self, startHex, goalHex):
-        s = self.search(startHex, goalHex)
-        endNode = None
-        cost = None
-        for hexNode in s[0]:
-            if hexNode.h == goalHex:
-                if endNode == None:
-                    endNode = hexNode
-                    cost = s[1][hexNode]
-                elif cost > s[1][hexNode]:
-                    endNode = hexNode
-                    cost = s[1][hexNode]
-        
         path = []
-        
-        if endNode != None:
-            path.append(endNode.h)
-            currNode = s[0][endNode]
-            if currNode != None:
-                while currNode.h != startHex:
-                    path.append(currNode.h)
-                    currNode = s[0][currNode]
-                path.append(startHex)
+        if startHex != None and goalHex != None:
+            s = self.search(startHex, goalHex)
+            endNode = None
+            cost = None
+            for hexNode in s[0]:
+                if hexNode.h == goalHex:
+                    if endNode == None:
+                        endNode = hexNode
+                        cost = s[1][hexNode]
+                    elif cost > s[1][hexNode]:
+                        endNode = hexNode
+                        cost = s[1][hexNode]
+            
+            if endNode != None:
+                path.append(endNode.h)
+                currNode = s[0][endNode]
+                if currNode != None:
+                    while currNode.h != startHex:
+                        path.append(currNode.h)
+                        currNode = s[0][currNode]
+                    path.append(startHex)
         
         return path
     
@@ -150,7 +153,10 @@ class HexMap(object):
     
     @staticmethod
     def distance(a, b):
-        return (abs(b.q - a.q) + abs(b.r - a.r) + abs(b.s - a.s)) // 2
+        if a != None and b != None:
+            return (abs(b.q - a.q) + abs(b.r - a.r) + abs(b.s - a.s)) // 2
+        else:
+            return None
     
     @staticmethod
     def heuristic(a, b):

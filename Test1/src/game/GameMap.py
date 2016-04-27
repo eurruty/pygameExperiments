@@ -1,56 +1,88 @@
 import pygame
 import random
 
+from api.Hex import Hex
 from api.HexNode import HexNode
 from api.HexMap import HexMap
+from api.Point import Point
 from game.GameHex import GameHex
 
 class GameMap(HexMap):
-    def __init__(self, height, width, dPass, dWeight, hSize, center):
-        self.height = height
-        self.width = width
-        self.hSize = hSize
-        self.center = center
+    HEIGHT = 20
+    WIDTH = 23
+    HEX_SIZE = 24
+    ORIGIN = Point(36, 42)
+    IMPASSABILITY_FACTOR = 35
+    WAYPOINTS = [(1, 1), (HEIGHT - 2, 1), (HEIGHT - 2, WIDTH - 2), (1, WIDTH - 2)]
+    SPAWN_LOC = (HEIGHT - 2, 1)
+    HOME_LOC = (1, WIDTH - 2)
+    
+    def __init__(self):
+        
+        self.height = GameMap.HEIGHT
+        self.width = GameMap.WIDTH
         
         #define map
         self.corners = {}
-        self.map = [None] * height
-        for i in range(height):
-            self.map[i] = [None] * width
+        self.map = [None] * self.height
+        for i in range(self.height):
+            self.map[i] = [None] * self.width
         
         #fill map
-        for i in range(height):
-            for j in range(width):
+        for i in range(self.height):
+            for j in range(self.width):
                 first = -(i // 2)
                 q = first + j
                 r = i
-                currHex = GameHex(q, r, dPass, dWeight)
+                currHex = GameHex(q, r, 0, 1)
                 self.map[i][j] = currHex
-                self.corners.update({(q, r):currHex.getCornersStroked(self.center, self.hSize)})
+                self.corners.update({(q, r):currHex.getCornersStroked(GameMap.ORIGIN, GameMap.HEX_SIZE)})
+                
+        self.home = self.getHome()
+        self.spawn = self.getSpawn()
+        
+        self.randomizePassability()
+        self.path = self.getPath(self.spawn, self.home)
+    
+    def getSpawn(self):
+        return self.map[GameMap.SPAWN_LOC[0]][GameMap.SPAWN_LOC[1]]
+    
+    def getHome(self):
+        return self.map[GameMap.HOME_LOC[0]][GameMap.HOME_LOC[1]]
                 
     def getWeight(self, q, r):
         return HexMap.getHex(self, q, r).w
     
+    def pixelToHex(self, p):
+        h = Hex.pixelToHex(p, GameMap.ORIGIN, GameMap.HEX_SIZE)
+        return self.getHex(h.q, h.r)
+    
+    def getHexCenter(self, h):
+        if self.inBounds(h):
+            return h.getCenter(GameMap.ORIGIN, GameMap.HEX_SIZE)
+    
     def getCornersAsList(self, h):
-        return self.corners[(h.q, h.r)]
+        if h != None:
+            return self.corners[(h.q, h.r)]
+        else:
+            return None
     
     def isPassable(self, q, r):
-        res = HexMap.getHex(self, q, r).p
-        return res
+        return HexMap.getHex(self, q, r).p == GameHex.PASSABLE
     
-    def getImpassableList(self):
-        ip = []
+    def getDisabledList(self):
+        ds = []
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if not self.map[i][j].p:
-                    ip.append(self.map[i][j])
-        return ip
+                if self.map[i][j].p == GameHex.DISABLED:
+                    ds.append(self.map[i][j])
+        return ds
     
     def getPassableList(self):
         ps = []
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if self.map[i][j].p:
+                if self.map[i][j].p == GameHex.PASSABLE:
                     ps.append(self.map[i][j])
         return ps
     
@@ -74,9 +106,37 @@ class GameMap(HexMap):
     def randomizePassability(self):
         for i in range(self.height):
             for j in range(self.width):
-                r = random.randint(0,3)
-                if r == 2:
-                    self.map[i][j].p = False
+                coord = (i, j)
+                if not coord in GameMap.WAYPOINTS:
+                    r = random.randint(0, 100)
+                    if r < GameMap.IMPASSABILITY_FACTOR:
+                        self.map[i][j].p = -1
+                    else:
+                        self.map[i][j].p = 0
+        
+        if not self.waypointsConnected():
+            self.randomizePassability()
+    
+    def waypointsConnected(self):
+        wps = self.getWaypoints()
+        size = len(wps)
+        for i in range(size):
+            nextIndex = (i + 1) % size
+            if not self.connected(wps[i], wps[nextIndex]):
+                return False
+        return True
+            
+    def getWaypoints(self):
+        wps = []
+        for i in range(len(GameMap.WAYPOINTS)):
+            wps.append(self.map[GameMap.WAYPOINTS[i][0]][GameMap.WAYPOINTS[i][1]])
+        return wps
+    
+    def connected(self, a, b):
+        if len(self.getPath(a, b)) > 0:
+            return True
+        else:
+            return False
     
     def cost(self, a, b):
         return 1 + self.getWeight(b.h.q, b.h.r) + self.turningCost(a, b)
@@ -86,19 +146,19 @@ class GameMap(HexMap):
             line = ""
             for j in range(self.width):
                 currHex = self.map[i][j]
-                if currHex.p:
-                    line += str(currHex.w)
-                else:
-                    line += "X"
+                line += str(currHex.p)
                 line += " "
             print(line)
+            
+    def update(self):
+        self.path = self.getPath(self.spawn, self.home)
     
     def render(self, screen):
-        ip = self.getImpassableList()
+        ds = self.getDisabledList()
         ps = self.getPassableList()
             
-        for i in range(len(ip)):
-            currHex = ip[i]
+        for i in range(len(ds)):
+            currHex = ds[i]
             currHexCorners = self.corners[(currHex.q, currHex.r)]
             pygame.draw.polygon(screen, (0, 0, 0), currHexCorners, 0)
             pygame.draw.aalines(screen, (0, 0, 0), True, currHexCorners, 1)

@@ -6,7 +6,6 @@ from game.GameMap import GameMap
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
-HEX_SIZE = 24
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -23,8 +22,7 @@ testHex = Hex(0, 0)
 
 mouseCoord = None
 
-hexMap = GameMap(20, 23, True, 1, HEX_SIZE, CENTER)
-hexMap.randomizePassability()
+hexMap = GameMap()
 hexMap.printMap()
 centerCoord = None
 hexCenter = None
@@ -87,23 +85,27 @@ def update():
                     screen = pygame.display.set_mode(RESOLUTION)
     
     p = pygame.mouse.get_pos()
-    mouseHex = Hex.pixelToHex(Point(p[0], p[1]), CENTER, HEX_SIZE)
+    mouseHex = hexMap.pixelToHex(Point(p[0], p[1]))
     if mouseHex != testHex:
         testHex = mouseHex
-        path = hexMap.getPath(Hex(-8, 18), mouseHex)
-    
-    centerCoord = testHex.getCenter(CENTER, HEX_SIZE)
-    corners = testHex.getCornersAsList(CENTER, HEX_SIZE)
+        centerCoord = hexMap.getHexCenter(testHex)
+        corners = hexMap.getCornersAsList(testHex)
+        path = hexMap.getPath(hexMap.spawn, mouseHex)
 
 def render():
     screen.blit(imgBackground, (0, 0))
+    
     hexMap.render(screen)
-    screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
+    
     for i in range(len(path)):
         currHexCorners = hexMap.getCornersAsList(path[i])
         pygame.draw.polygon(screen, (0, 0, 255), currHexCorners, 0)
         pygame.draw.aalines(screen, (0, 0, 255), True, currHexCorners, 1)
-    pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
+        
+    if centerCoord != None and corners != None:
+        screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
+        pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
+        
     pygame.display.flip()
     
 def destroy():
