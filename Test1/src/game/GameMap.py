@@ -34,7 +34,7 @@ class GameMap(HexMap):
                 first = -(i // 2)
                 q = first + j
                 r = i
-                currHex = GameHex(q, r, 0, 1)
+                currHex = GameHex(q, r, 0, 0)
                 self.map[i][j] = currHex
                 self.corners.update({(q, r):currHex.getCornersStroked(GameMap.ORIGIN, GameMap.HEX_SIZE)})
                 

@@ -7,7 +7,7 @@ class GameHex(Hex):
     IMPASSABLE = 1
     HEX_TYPES = [DISABLED, PASSABLE, IMPASSABLE]
     
-    def __init__(self, q, r, p=PASSABLE, w=1):
+    def __init__(self, q, r, p=PASSABLE, w=0):
         Hex.__init__(self, q, r)
         self.p = p
         self.w = w

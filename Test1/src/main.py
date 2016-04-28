@@ -1,8 +1,8 @@
 import pygame
 from api.Point import Point
 from api.Hex import Hex
-#from api.HexMap import HexMap
 from game.GameMap import GameMap
+from game.Enemy import Enemy
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
@@ -24,6 +24,7 @@ mouseCoord = None
 
 hexMap = GameMap()
 hexMap.printMap()
+enemy1 = None
 centerCoord = None
 hexCenter = None
 cornerCoords = None
@@ -38,6 +39,7 @@ def init():
     global corners
     global clock
     global hexCenter
+    global enemy1
     
     pygame.init()
 
@@ -56,6 +58,9 @@ def init():
     hexCenter = pygame.Surface((1, 1))
     hexCenter = hexCenter.convert()
     hexCenter.fill((255, 0, 0))
+    
+    eSpawn = GameMap.getHexCenter(hexMap, hexMap.getSpawn())
+    enemy1 = Enemy(eSpawn.x, eSpawn.y)
     
     clock = pygame.time.Clock()
     
@@ -91,6 +96,8 @@ def update():
         centerCoord = hexMap.getHexCenter(testHex)
         corners = hexMap.getCornersAsList(testHex)
         path = hexMap.getPath(hexMap.spawn, mouseHex)
+        
+    enemy1.update()
 
 def render():
     screen.blit(imgBackground, (0, 0))
@@ -105,6 +112,8 @@ def render():
     if centerCoord != None and corners != None:
         screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
         pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
+        
+    enemy1.render(screen)
         
     pygame.display.flip()
     
