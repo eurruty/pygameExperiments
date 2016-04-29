@@ -23,7 +23,8 @@ testHex = Hex(0, 0)
 mouseCoord = None
 
 hexMap = GameMap()
-hexMap.printMap()
+#hexMap.printMap()
+waypoints = hexMap.getEnemyWaypoints()
 enemy1 = None
 centerCoord = None
 hexCenter = None
@@ -59,8 +60,7 @@ def init():
     hexCenter = hexCenter.convert()
     hexCenter.fill((255, 0, 0))
     
-    eSpawn = GameMap.getHexCenter(hexMap, hexMap.getSpawn())
-    enemy1 = Enemy(eSpawn.x, eSpawn.y)
+    enemy1 = Enemy(waypoints)
     
     clock = pygame.time.Clock()
     

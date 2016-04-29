@@ -13,7 +13,7 @@ class GameMap(HexMap):
     HEX_SIZE = 24
     ORIGIN = Point(36, 42)
     IMPASSABILITY_FACTOR = 35
-    WAYPOINTS = [(1, 1), (HEIGHT - 2, 1), (HEIGHT - 2, WIDTH - 2), (1, WIDTH - 2)]
+    REACHABLE_AREAS = [(1, 1), (HEIGHT - 2, 1), (HEIGHT - 2, WIDTH - 2), (1, WIDTH - 2)]
     SPAWN_LOC = (HEIGHT - 2, 1)
     HOME_LOC = (1, WIDTH - 2)
     
@@ -107,36 +107,50 @@ class GameMap(HexMap):
         for i in range(self.height):
             for j in range(self.width):
                 coord = (i, j)
-                if not coord in GameMap.WAYPOINTS:
+                if not coord in GameMap.REACHABLE_AREAS:
                     r = random.randint(0, 100)
                     if r < GameMap.IMPASSABILITY_FACTOR:
                         self.map[i][j].p = -1
                     else:
                         self.map[i][j].p = 0
         
-        if not self.waypointsConnected():
+        while not self.reachableAreasConnected():
             self.randomizePassability()
     
-    def waypointsConnected(self):
-        wps = self.getWaypoints()
-        size = len(wps)
+    def reachableAreasConnected(self):
+        ras = self.getReachableAreas()
+        size = len(ras)
         for i in range(size):
             nextIndex = (i + 1) % size
-            if not self.connected(wps[i], wps[nextIndex]):
+            if not self.connected(ras[i], ras[nextIndex]):
                 return False
         return True
             
-    def getWaypoints(self):
-        wps = []
-        for i in range(len(GameMap.WAYPOINTS)):
-            wps.append(self.map[GameMap.WAYPOINTS[i][0]][GameMap.WAYPOINTS[i][1]])
-        return wps
+    def getReachableAreas(self):
+        ras = []
+        for i in range(len(GameMap.REACHABLE_AREAS)):
+            ras.append(self.map[GameMap.REACHABLE_AREAS[i][0]][GameMap.REACHABLE_AREAS[i][1]])
+        return ras
     
     def connected(self, a, b):
         if len(self.getPath(a, b)) > 0:
             return True
         else:
             return False
+        
+    def getEnemyWaypoints(self):
+        waypoints = []
+        pathLength = len(self.path)
+        for i in range(pathLength):
+            currIndex = pathLength - (i + 1)
+            currHex = self.path[currIndex]
+            if currHex != self.home:
+                nextHex = self.path[currIndex - 1]
+                direction = HexMap.direction(currHex, nextHex)
+                currCenter = self.getHexCenter(currHex)
+                nextCenter = self.getHexCenter(nextHex)
+                waypoints.append((currCenter, nextCenter, direction))
+        return waypoints
     
     def cost(self, a, b):
         return 1 + self.getWeight(b.h.q, b.h.r) + self.turningCost(a, b)

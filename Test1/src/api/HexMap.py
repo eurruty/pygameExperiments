@@ -150,6 +150,14 @@ class HexMap(object):
         else:
             diff = abs(a.d - b.d)
             return HexMap.TURNING_COST[diff]
+        
+    @staticmethod
+    def direction(a, b):
+        diff = (b - a).getAxialCoords()
+        if diff in HexMap.DR:
+            return HexMap.DR.index(diff)
+        else:
+            return None
     
     @staticmethod
     def distance(a, b):
