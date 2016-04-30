@@ -1,8 +1,11 @@
 import pygame
+import time
+
 from api.Point import Point
 from api.Hex import Hex
 from game.GameMap import GameMap
 from game.Enemy import Enemy
+from game.EnemyManager import EnemyManager
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
@@ -11,6 +14,7 @@ SCREEN_HEIGHT = 768
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
 SCREEN_ORIGIN = (0, 0)
 CENTER = Point(36, 42)
+MAX_ENEMIES = 10
 
 isFullscreen = False
 screen = None
@@ -32,6 +36,7 @@ cornerCoords = None
 corners = []
 path = []
 
+waveTimer = None
 
 def init():
     global screen
@@ -40,7 +45,7 @@ def init():
     global corners
     global clock
     global hexCenter
-    global enemy1
+    global waveTimer
     
     pygame.init()
 
@@ -60,7 +65,9 @@ def init():
     hexCenter = hexCenter.convert()
     hexCenter.fill((255, 0, 0))
     
-    enemy1 = Enemy(waypoints)
+    waveTimer = time.time()
+    
+    EnemyManager.inst().addEnemy(Enemy(waypoints))
     
     clock = pygame.time.Clock()
     
@@ -73,6 +80,7 @@ def update():
     global centerCoord
     global corners
     global path
+    global waveTimer
 
     clock.tick(60)
 
@@ -95,25 +103,32 @@ def update():
         testHex = mouseHex
         centerCoord = hexMap.getHexCenter(testHex)
         corners = hexMap.getCornersAsList(testHex)
-        path = hexMap.getPath(hexMap.spawn, mouseHex)
-        
-    enemy1.update()
+        #path = hexMap.getPath(hexMap.spawn, mouseHex)
+    
+    if len(EnemyManager.inst().mGameObjects) < MAX_ENEMIES:
+        currTime = time.time()
+        diff = currTime - waveTimer
+        if diff > 0.5:
+            EnemyManager.inst().addEnemy(Enemy(waypoints))
+            waveTimer = currTime
+    
+    EnemyManager.inst().update()
 
 def render():
     screen.blit(imgBackground, (0, 0))
     
     hexMap.render(screen)
     
-    for i in range(len(path)):
-        currHexCorners = hexMap.getCornersAsList(path[i])
-        pygame.draw.polygon(screen, (0, 0, 255), currHexCorners, 0)
-        pygame.draw.aalines(screen, (0, 0, 255), True, currHexCorners, 1)
+#     for i in range(len(path)):
+#         currHexCorners = hexMap.getCornersAsList(path[i])
+#         pygame.draw.polygon(screen, (0, 0, 255), currHexCorners, 0)
+#         pygame.draw.aalines(screen, (0, 0, 255), True, currHexCorners, 1)
         
     if centerCoord != None and corners != None:
         screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
         pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
         
-    enemy1.render(screen)
+    EnemyManager.inst().render(screen)
         
     pygame.display.flip()
     

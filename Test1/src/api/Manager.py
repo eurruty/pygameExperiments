@@ -2,7 +2,7 @@ class Manager(object):
     mInstance = None
     mInitialized = False
     
-    mGameObjects = None
+    mGameObjects = []
     
     def __new__(self, *args, **kargs):
         if (Manager.mInstance is None):
