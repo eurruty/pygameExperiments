@@ -1,7 +1,8 @@
 import math
 from api.Point import Point
+from api.GameObject import GameObject
 
-class Hex(object):
+class Hex(GameObject):
     
     SQRT3 = 3.0**0.5
     #SQRT3 = 7.0/4.0

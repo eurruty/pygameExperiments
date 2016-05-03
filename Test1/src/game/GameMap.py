@@ -34,7 +34,7 @@ class GameMap(HexMap):
                 first = -(i // 2)
                 q = first + j
                 r = i
-                currHex = GameHex(q, r, 0, 0)
+                currHex = GameHex(q, r, GameHex.STATE_PASSABLE, 0)
                 self.map[i][j] = currHex
                 self.corners.update({(q, r):currHex.getCornersStroked(GameMap.ORIGIN, GameMap.HEX_SIZE)})
                 
@@ -68,13 +68,13 @@ class GameMap(HexMap):
             return None
     
     def isPassable(self, q, r):
-        return HexMap.getHex(self, q, r).p == GameHex.PASSABLE
+        return HexMap.getHex(self, q, r).state == GameHex.STATE_PASSABLE
     
     def getDisabledList(self):
         ds = []
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if self.map[i][j].p == GameHex.DISABLED:
+                if self.map[i][j].state == GameHex.STATE_DISABLED:
                     ds.append(self.map[i][j])
         return ds
     
@@ -82,7 +82,7 @@ class GameMap(HexMap):
         ps = []
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if self.map[i][j].p == GameHex.PASSABLE:
+                if self.map[i][j].state == GameHex.STATE_PASSABLE:
                     ps.append(self.map[i][j])
         return ps
     
@@ -110,9 +110,9 @@ class GameMap(HexMap):
                 if not coord in GameMap.REACHABLE_AREAS:
                     r = random.randint(0, 100)
                     if r < GameMap.IMPASSABILITY_FACTOR:
-                        self.map[i][j].p = -1
+                        self.map[i][j].state = GameHex.STATE_DISABLED
                     else:
-                        self.map[i][j].p = 0
+                        self.map[i][j].state = GameHex.STATE_PASSABLE
         
         while not self.reachableAreasConnected():
             self.randomizePassability()
@@ -160,7 +160,7 @@ class GameMap(HexMap):
             line = ""
             for j in range(self.width):
                 currHex = self.map[i][j]
-                line += str(currHex.p)
+                line += str(currHex.state)
                 line += " "
             print(line)
             
@@ -174,11 +174,11 @@ class GameMap(HexMap):
         for i in range(len(ds)):
             currHex = ds[i]
             currHexCorners = self.corners[(currHex.q, currHex.r)]
-            #pygame.draw.polygon(screen, (0, 0, 0), currHexCorners, 0)
+            pygame.draw.polygon(screen, (0, 0, 0), currHexCorners, 0)
             pygame.draw.aalines(screen, (0, 0, 0), True, currHexCorners, 1)
             
         for i in range(len(ps)):
             currHex = ps[i]
             currHexCorners = self.corners[(currHex.q, currHex.r)]
-            #pygame.draw.polygon(screen, (255, 255, 255), currHexCorners, 0)
+            pygame.draw.polygon(screen, (255, 255, 255), currHexCorners, 0)
             pygame.draw.aalines(screen, (255, 255, 255), True, currHexCorners, 1)
