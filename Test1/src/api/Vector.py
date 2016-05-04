@@ -1,63 +1,102 @@
 import math
 
 class Vector(object):
-    def __init__(self, aX, aY):
-        self.mX = aX
-        self.mY = aY
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return NotImplemented
+    
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return not self.__eq__(other)
+        else:
+            return NotImplemented
+    
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
+    
+    def __str__(self):
+        return ("[" + str(self.x) + ", " + str(self.y) + "]")
+    
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            return Vector(self.x + other.x, self.y + other.y)
+        else:
+            return NotImplemented
+        
+    def __iadd__(self, other):
+        return self.__add__(other)
+    
+    def __sub__(self, other):
+        if isinstance(other, self.__class__):
+            return Vector(self.x - other.x, self.y - other.y)
+        else:
+            return NotImplemented
+        
+    def __isub__(self, other):
+        return self.__sub__(other)
+    
+    def __abs__(self):
+        return (self.x**2 + self.y**2)**0.5
         
     def setX(self, value):
-        self.mX = value
+        self.x = value
 
     def setY(self, value):
-        self.mY = value
+        self.y = value
         
     def getX(self):
-        return self.mX
+        return self.x
 
     def getY(self):
-        return self.mY
+        return self.y
     
     def getMagnitude(self):
-        return (self.mX**2 + self.mY**2)**(0.5)
+        return (self.x**2 + self.y**2)**(0.5)
     
     def getAngleRads(self):
-        return math.pi - math.atan2(self.mY, self.mX)
+        return math.pi - math.atan2(self.y, self.x)
     
     def getAngleDegs(self):
         return math.degrees(self.getAngleRads())
     
     def getNormal(self):
-        normal = Vector(self.mX, self.mY)
+        normal = Vector(self.x, self.y)
         normal.normalize()
         return normal
     
     def normalize(self):
         mag = self.getMagnitude()
-        self.mX /= mag
-        self.mY /= mag
+        self.x /= mag
+        self.y /= mag
         return mag
     
     def invert(self):
-        self.mX = -self.mX
-        self.mY = -self.mY
+        self.x = -self.x
+        self.y = -self.y
     
     def sum(self, v):
-        self.mX += v.getX()
-        self.mY += v.getY()
+        self.x += v.getX()
+        self.y += v.getY()
         
     def substract(self, v):
-        self.mX -= v.getX()
-        self.mY -= v.getY()
+        self.x -= v.getX()
+        self.y -= v.getY()
         
     def multiplyScalar(self, s):
-        self.mX *= s
-        self.mY *= s
+        self.x *= s
+        self.y *= s
 
     def delX(self):
-        del self.mX
+        del self.x
 
     def delY(self):
-        del self.mY
+        del self.y
 
     def destroy(self):
         pass

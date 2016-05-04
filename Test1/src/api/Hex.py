@@ -1,5 +1,5 @@
 import math
-from api.Point import Point
+from api.Vector import Vector
 from api.GameObject import GameObject
 
 class Hex(GameObject):
@@ -66,13 +66,13 @@ class Hex(GameObject):
     def getCenter(self, o, sz):
         x = o.x + (sz * Hex.SQRT3 * (self.q + (self.r / 2.0)))
         y = o.y + (sz * (3.0 / 2.0) * self.r)
-        return Point(x, y)
+        return Vector(x, y)
         
     def getCornerOffset(self, sz, cr):
         a = 2.0 * math.pi * ((cr + Hex.S_ANGLE) / 6)
         x = sz * math.cos(a)
         y = sz * math.sin(a)
-        return Point(x, y)
+        return Vector(x, y)
     
     def getCornerOffsets(self, sz):
         corners = []
@@ -85,7 +85,7 @@ class Hex(GameObject):
         off = self.getCornerOffset(sz, cr)
         x = ctr.x + off.x
         y = ctr.y + off.y
-        return Point(x, y)
+        return Vector(x, y)
     
     def getCorners(self, o, sz):
         ctr = self.getCenter(o, sz)
@@ -130,7 +130,7 @@ class Hex(GameObject):
     
     @staticmethod
     def pixelToHex(p, o, sz):
-        pt = Point(p.x - o.x, p.y - o.y)
+        pt = Vector(p.x - o.x, p.y - o.y)
         q = ((pt.x * Hex.SQRT3 / 3.0) - (pt.y / 3.0)) / (sz * 1.0)
         r = (pt.y * 2.0 / 3.0) / (sz * 1.0)
         h = Hex(q, r)

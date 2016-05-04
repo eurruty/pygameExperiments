@@ -1,11 +1,12 @@
 import pygame
 import time
 
-from api.Point import Point
+from api.Vector import Vector
 from api.Hex import Hex
 from game.GameMap import GameMap
 from game.Enemy import Enemy
 from game.EnemyManager import EnemyManager
+from game.Tower import Tower
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
@@ -13,7 +14,7 @@ SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 RESOLUTION = (SCREEN_WIDTH, SCREEN_HEIGHT)
 SCREEN_ORIGIN = (0, 0)
-CENTER = Point(36, 42)
+CENTER = Vector(36, 42)
 MAX_ENEMIES = 10
 
 isFullscreen = False
@@ -26,13 +27,12 @@ testHex = Hex(0, 0)
 
 mouseCoord = None
 
-hexMap = GameMap()
-#hexMap.printMap()
-waypoints = hexMap.getEnemyWaypoints()
-enemy1 = None
+hexMap = GameMap.inst()
+hexMap.printMap()
 centerCoord = None
 hexCenter = None
 cornerCoords = None
+tower = None
 corners = []
 path = []
 
@@ -46,6 +46,7 @@ def init():
     global clock
     global hexCenter
     global waveTimer
+    global tower
     
     pygame.init()
 
@@ -65,9 +66,11 @@ def init():
     hexCenter = hexCenter.convert()
     hexCenter.fill((255, 0, 0))
     
+    tower = Tower(-6, 17)
+    
     waveTimer = time.time()
     
-    EnemyManager.inst().addEnemy(Enemy(waypoints))
+    EnemyManager.inst().addEnemy(Enemy())
     
     clock = pygame.time.Clock()
     
@@ -98,7 +101,7 @@ def update():
                     screen = pygame.display.set_mode(RESOLUTION)
     
     p = pygame.mouse.get_pos()
-    mouseHex = hexMap.pixelToHex(Point(p[0], p[1]))
+    mouseHex = hexMap.pixelToHex(Vector(p[0], p[1]))
     if mouseHex != testHex:
         testHex = mouseHex
         centerCoord = hexMap.getHexCenter(testHex)
@@ -109,10 +112,11 @@ def update():
         currTime = time.time()
         diff = currTime - waveTimer
         if diff > 0.5:
-            EnemyManager.inst().addEnemy(Enemy(waypoints))
+            EnemyManager.inst().addEnemy(Enemy())
             waveTimer = currTime
     
     EnemyManager.inst().update()
+    tower.update()
 
 def render():
     screen.blit(imgBackground, (0, 0))
@@ -129,6 +133,7 @@ def render():
         pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
         
     EnemyManager.inst().render(screen)
+    tower.render(screen)
         
     pygame.display.flip()
     
