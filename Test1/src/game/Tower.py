@@ -1,8 +1,12 @@
+import pygame
+
 from api.Vector import Vector
 from api.ParticleSprite import ParticleSprite
 from game.GameHex import GameHex
 from game.GameMap import GameMap
 from game.EnemyManager import EnemyManager
+from game.HomingProjectile import HomingProjectile
+from game.ProjectileManager import ProjectileManager
 
 class Tower(GameHex):
     
@@ -10,9 +14,9 @@ class Tower(GameHex):
     STATE_AIM = 1
     STATE_ATK = 2
     
-    ON_SIGHT_OFFSET = 2
+    ON_SIGHT_OFFSET = 1
     
-    DEFAULT_RANGE = 100
+    DEFAULT_RANGE = GameMap.HEX_SIZE * 6
     DEFAULT_TURN_SPEED = 4
     DEFAULT_TOWER_IMG = "assets/images/tower1.png"
     
@@ -23,73 +27,98 @@ class Tower(GameHex):
         self.center = GameMap.inst().getHexCenter(self)
         self.sprite = ParticleSprite(0, Vector(self.center.x, self.center.y), Vector(0, 0), Vector(0, 0), Tower.DEFAULT_TOWER_IMG)
         self.target = None
-        self.angle = 0
-        self.angularSpeed = 0
+        self.sprite.mAngle = 0
+        self.sprite.mAngularSpeed = 0
         self.range = Tower.DEFAULT_RANGE
-        self.state = Tower.STATE_IDLE
+        self.range2 = self.range * self.range
+        self.towerState = Tower.STATE_IDLE
             
     def inRange(self, enemy):
-        diff = enemy.mP - self.center
-        dx2 = diff.x * diff.x
-        dy2 = diff.y * diff.y
-        range2 = self.range * self.range
-        
-        if dx2 + dy2 > range2:
+        if self.distance2(enemy) > self.range2:
             return False
         else:
             return True
+    
+    def distance2(self, enemy):
+        diff = enemy.mP - self.center
+        dx2 = diff.x * diff.x
+        dy2 = diff.y * diff.y
+        return dx2 + dy2
         
     def setTarget(self, enemy):
         self.target = enemy
     
-    def onSight(self, enemy):
-        if abs(self.angleDiference(enemy)) > Tower.ON_SIGHT_OFFSET:
+    def onSight(self):
+        if abs(self.angleDiference()) > Tower.ON_SIGHT_OFFSET:
             return False
         else:
             return True
     
-    def aim(self, enemy):
-        if self.angleDiference(enemy) > 0:
-            self.angularSpeed = Tower.DEFAULT_TURN_SPEED
+    def aim(self):
+        if self.angleDiference() > 0:
+            self.sprite.mAngularSpeed = Tower.DEFAULT_TURN_SPEED
         else:
-            self.angularSpeed = -Tower.DEFAULT_TURN_SPEED
+            self.sprite.mAngularSpeed = -Tower.DEFAULT_TURN_SPEED
     
     def fire(self):
-        pass
+        ProjectileManager.inst().addProjectile(HomingProjectile(self, self.target))
     
-    def angleDiference(self, enemy):
-        enemyDirection = Vector.AngleDegs(self.center, enemy.mP)
-        angleDiff = self.angle - enemyDirection
+    def angleDiference(self):
+        diff = self.center - self.target.mP
+        enemyDirection = diff.getAngleDegs()
+        angleDiff = enemyDirection - self.sprite.mAngle
         angleDiff = (angleDiff + 180) % 360 - 180
         return angleDiff
     
     def update(self):
-        if self.state == Tower.STATE_IDLE:
-            for i in range(len(EnemyManager.inst().mGameObjects)):
-                if self.inRange(EnemyManager.inst().mGameObjects[i]):
-                    self.setTarget(EnemyManager.inst().mGameObjects[i])
-                    break
+        self.sprite.update()
+        if self.towerState == Tower.STATE_IDLE:
+            
+            target = None
+            distance = None
+            
+            for i in range(len(EnemyManager.inst().mArray)):
                 
-            if self.target != None:
-                self.state = Tower.STATE_AIM
+                currTarget = EnemyManager.inst().mArray[i]
+                currDistance = self.distance2(currTarget)
+                
+                if currDistance <= self.range2:
+                    if target == None:
+                        target = currTarget
+                        distance = currDistance
+                    else:
+                        if currDistance < distance:
+                            target = currTarget
+                            distance = currDistance
+                            
+            if target != None:
+                self.setTarget(target)
+                self.towerState = Tower.STATE_AIM
+                
                 
         if self.target == None:
-            self.state = Tower.STATE_IDLE
+            self.sprite.mAngularSpeed = 0
+            self.towerState = Tower.STATE_IDLE
             
-        if self.state == Tower.STATE_AIM:
+        if self.towerState == Tower.STATE_AIM:
             if self.inRange(self.target):
-                if self.onSight(self.target):
-                    self.angularSpeed = 0
-                    self.state = Tower.STATE_ATK
+                if self.onSight():
+                    self.sprite.mAngularSpeed = 0
+                    self.towerState = Tower.STATE_ATK
                 else:
-                    self.aim(self.target)
+                    self.aim()
             else:
                 self.target = None
-                self.state = Tower.STATE_IDLE
+                self.sprite.mAngularSpeed = 0
+                self.towerState = Tower.STATE_IDLE
         
-        if self.state == Tower.STATE_ATK:
-            self.fire(self.target)
-            self.state = Tower.STATE_AIM
-            
+        if self.towerState == Tower.STATE_ATK:
+            self.fire()
+            self.towerState = Tower.STATE_AIM
+
     def render(self, screen):
         self.sprite.render(screen)
+        
+        #debug target
+        if self.target != None:
+            pygame.draw.aalines(screen, (255, 0, 0), False, ((self.center.x, self.center.y), (self.target.mP.x, self.target.mP.y)), 1)

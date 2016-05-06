@@ -53,7 +53,8 @@ class ParticleSprite(Particle):
     def render(self, aScreen):
         if self.mAngle != self.mDisplayAngle:
             self.mDisplayImg = self.mImg
-            self.mDisplayImg = pygame.transform.rotate(self.mDisplayImg, self.mAngle)
+            #self.mDisplayImg = pygame.transform.rotate(self.mDisplayImg, self.mAngle)
+            self.mDisplayImg = pygame.transform.rotozoom(self.mDisplayImg, self.mAngle, 1)
             self.mDisplayAngle = self.mAngle
             rect = self.mDisplayImg.get_rect()
             self.mR = (rect.width + rect.height) // 4

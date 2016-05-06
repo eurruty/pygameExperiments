@@ -7,6 +7,8 @@ from game.GameMap import GameMap
 from game.Enemy import Enemy
 from game.EnemyManager import EnemyManager
 from game.Tower import Tower
+from game.TowerManager import TowerManager
+from game.ProjectileManager import ProjectileManager
 
 HEX_X = Hex(1, 0)
 HEX_Y = Hex(0, 1)
@@ -28,11 +30,10 @@ testHex = Hex(0, 0)
 mouseCoord = None
 
 hexMap = GameMap.inst()
-hexMap.printMap()
+#hexMap.printMap()
 centerCoord = None
 hexCenter = None
 cornerCoords = None
-tower = None
 corners = []
 path = []
 
@@ -46,7 +47,6 @@ def init():
     global clock
     global hexCenter
     global waveTimer
-    global tower
     
     pygame.init()
 
@@ -66,11 +66,13 @@ def init():
     hexCenter = hexCenter.convert()
     hexCenter.fill((255, 0, 0))
     
-    tower = Tower(-6, 17)
+    TowerManager.inst().addTower(Tower(-6, 17))
+    TowerManager.inst().addTower(Tower(-3, 12))
+    TowerManager.inst().addTower(Tower(0, 10))
+    TowerManager.inst().addTower(Tower(0, 13))
+    TowerManager.inst().addTower(Tower(16, 3))
     
     waveTimer = time.time()
-    
-    EnemyManager.inst().addEnemy(Enemy())
     
     clock = pygame.time.Clock()
     
@@ -107,8 +109,11 @@ def update():
         centerCoord = hexMap.getHexCenter(testHex)
         corners = hexMap.getCornersAsList(testHex)
         #path = hexMap.getPath(hexMap.spawn, mouseHex)
+        
+    TowerManager.inst().update()
+    ProjectileManager.inst().update()
     
-    if len(EnemyManager.inst().mGameObjects) < MAX_ENEMIES:
+    if len(EnemyManager.inst().mArray) < MAX_ENEMIES:
         currTime = time.time()
         diff = currTime - waveTimer
         if diff > 0.5:
@@ -116,7 +121,7 @@ def update():
             waveTimer = currTime
     
     EnemyManager.inst().update()
-    tower.update()
+    
 
 def render():
     screen.blit(imgBackground, (0, 0))
@@ -132,8 +137,9 @@ def render():
         screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
         pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
         
+    TowerManager.inst().render(screen)
+    ProjectileManager.inst().render(screen)
     EnemyManager.inst().render(screen)
-    tower.render(screen)
         
     pygame.display.flip()
     

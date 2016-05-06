@@ -79,6 +79,20 @@ class Vector(object):
     def invert(self):
         self.x = -self.x
         self.y = -self.y
+        
+    def rotateRads(self, angleRads):
+        cos = math.cos(angleRads)
+        sin = math.sin(angleRads)
+        
+        newX = (self.x * cos) - (self.y * sin)
+        newY = (self.x * sin) + (self.y * cos)
+        
+        self.x = newX
+        self.y = newY
+    
+    def rotateDegs(self, angleDegs):
+        angleRads = math.radians(angleDegs)
+        self.rotateRads(angleRads)
     
     def sum(self, v):
         self.x += v.getX()
@@ -125,5 +139,3 @@ class Vector(object):
     @staticmethod
     def AngleDegs(v1, v2):
         return math.degrees(Vector.AngleRads(v1, v2))
-    
-    

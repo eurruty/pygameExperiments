@@ -19,7 +19,7 @@ class Enemy(ParticleSprite):
     def __init__(self):
         self.steps = len(GameMap.inst().waypoints)
         
-        ParticleSprite.__init__(self, 1, Vector(GameMap.inst().waypoints[0][0].x, GameMap.inst().waypoints[0][0].y), Vector(0, 0), Vector(0, 0), Enemy.IMG_PATH)
+        ParticleSprite.__init__(self, 0, Vector(GameMap.inst().waypoints[0][0].x, GameMap.inst().waypoints[0][0].y), Vector(0, 0), Vector(0, 0), Enemy.IMG_PATH)
         
         self.currStep = 0
         self.currStepAdvance = 0

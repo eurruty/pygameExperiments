@@ -188,6 +188,7 @@ class GameMap(HexMap):
         i = t.r
         j = t.q + (t.r // 2)
         GameMap.map[i][j] = t
+        self.update()
     
     def printMap(self):
         for i in range(GameMap.HEIGHT):
@@ -200,6 +201,7 @@ class GameMap(HexMap):
             
     def update(self):
         GameMap.path = self.getPath(GameMap.spawn, GameMap.home)
+        GameMap.waypoints = self.getEnemyWaypoints()
     
     def render(self, screen):
         ds = self.getDisabledList()

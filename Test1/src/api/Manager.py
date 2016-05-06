@@ -1,37 +1,33 @@
 class Manager(object):
-    mInstance = None
-    mInitialized = False
-    
-    mGameObjects = []
-    
-    def __new__(self, *args, **kargs):
-        if (Manager.mInstance is None):
-            Manager.mInstance = object.__new__(self, *args, **kargs)
-            self.init(Manager.mInstance)
-        return self.mInstance
-    
-    @classmethod
-    def inst(cls):
-        if (not cls.mInstance):
-            return cls()
-        return cls.mInstance
-    
-    def init(self):
-        if (Manager.mInitialized):
-            return
-        Manager.mInitialized = True
-        Manager.mGameObjects = []
-    
-    def update(self):
-        for gameObject in Manager.mGameObjects:
-            gameObject.update()
-    
-    def render(self, aScreen):
-        for gameObject in Manager.mGameObjects:
-            gameObject.render(aScreen)
-    
-    def add(self, aGameObject):
-        Manager.mGameObjects.append(aGameObject)
+
+    def __init__(self):
         
+        self.mArray = []
+
+    def update(self):
+        for e in self.mArray:
+            e.update()
+
+        i = len(self.mArray)
+        while i > 0:
+            if self.mArray[i - 1].isDead():
+                self.mArray[i - 1].destroy()
+                self.mArray.pop(i - 1)
+            i = i - 1
+
+    def render(self, aScreen):
+        for e in self.mArray:
+            e.render(aScreen)
+
+    def add(self, aElement):
+        self.mArray.append(aElement)
+        
+    def getLength(self):
+        return len(self.mArray)
+
     def destroy(self):
-        Manager.mInstance = None
+        i = len(self.mArray)
+        while i > 0:
+            self.mArray[i - 1].destroy()
+            self.mArray.pop(i - 1)
+            i = i - 1
