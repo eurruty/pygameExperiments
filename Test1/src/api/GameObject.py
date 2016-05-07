@@ -9,4 +9,4 @@ class GameObject(object):
         pass
     
     def destroy(self):
-        pass
+        self.state = None

@@ -8,6 +8,7 @@ class Enemy(ParticleSprite):
     SPEED_FACTOR = 4
     ANGULAR_SPEED = SPEED_FACTOR * 2
     ANGULAR_OFFSET = ((ANGULAR_SPEED + 1) // 2)
+    HITBOX_RADIUS = 12
     
     STATE_ADVANCE = 0
     STATE_RETREAT = 1
@@ -30,6 +31,7 @@ class Enemy(ParticleSprite):
         self.currStepMoveY = self.currStepDiff.y / 100.0
         self.currStepAngle = Enemy.ANGLES[GameMap.inst().waypoints[0][2]]
         
+        self.hitboxRadius = Enemy.HITBOX_RADIUS
         self.mAngle = self.currStepAngle
         self.currStepAngleDiff = 0
         
@@ -122,3 +124,6 @@ class Enemy(ParticleSprite):
                 self.destroy()
                 
         ParticleSprite.update(self)
+        
+    def render(self, screen):
+        ParticleSprite.render(self, screen)

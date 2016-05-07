@@ -69,7 +69,12 @@ class Particle(GameObject):
         self.mP.sum(self.mS)
         
     def destroy(self):
-        pass
+        GameObject.destroy(self)
+        self.mM = None
+        self.mR = None
+        self.mP = None
+        self.mS = None
+        self.mA = None
         
     def bounce(self, p2):
         Particle.Bounce(self, p2)
@@ -81,7 +86,7 @@ class Particle(GameObject):
         #Cheap check first, real check after
         if abs(p2.getP().getX() - p1.getP().getX()) < dm and abs(p2.getP().getY() - p1.getP().getY()) < dm:
             dr = Vector.Difference(p1.getP(), p2.getP()).getMagnitude()
-            if dr >= dm:
+            if dr < dm:
                 return True
         return False
     

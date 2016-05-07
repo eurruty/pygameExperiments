@@ -109,9 +109,6 @@ def update():
         centerCoord = hexMap.getHexCenter(testHex)
         corners = hexMap.getCornersAsList(testHex)
         #path = hexMap.getPath(hexMap.spawn, mouseHex)
-        
-    TowerManager.inst().update()
-    ProjectileManager.inst().update()
     
     if len(EnemyManager.inst().mArray) < MAX_ENEMIES:
         currTime = time.time()
@@ -121,6 +118,10 @@ def update():
             waveTimer = currTime
     
     EnemyManager.inst().update()
+    
+    TowerManager.inst().update()
+    
+    ProjectileManager.inst().update()
     
 
 def render():
@@ -137,9 +138,9 @@ def render():
         screen.blit(hexCenter, (centerCoord.x, centerCoord.y))
         pygame.draw.aalines(screen, (255, 0, 0), True, corners, 1)
         
+    EnemyManager.inst().render(screen)
     TowerManager.inst().render(screen)
     ProjectileManager.inst().render(screen)
-    EnemyManager.inst().render(screen)
         
     pygame.display.flip()
     

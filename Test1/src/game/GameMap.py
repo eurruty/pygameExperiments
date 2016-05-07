@@ -207,14 +207,14 @@ class GameMap(HexMap):
         ds = self.getDisabledList()
         ps = self.getPassableList()
             
-        for i in range(len(ds)):
-            currHex = ds[i]
-            currHexCorners = GameMap.corners[(currHex.q, currHex.r)]
-            pygame.draw.polygon(screen, (0, 0, 0), currHexCorners, 0)
-            pygame.draw.aalines(screen, (0, 0, 0), True, currHexCorners, 1)
+#         for i in range(len(ds)):
+#             currHex = ds[i]
+#             currHexCorners = GameMap.corners[(currHex.q, currHex.r)]
+#             pygame.draw.polygon(screen, (0, 0, 0), currHexCorners, 0)
+#             pygame.draw.aalines(screen, (0, 0, 0), True, currHexCorners, 1)
             
         for i in range(len(ps)):
             currHex = ps[i]
             currHexCorners = GameMap.corners[(currHex.q, currHex.r)]
-            pygame.draw.polygon(screen, (255, 255, 255), currHexCorners, 0)
+#             pygame.draw.polygon(screen, (255, 255, 255), currHexCorners, 0)
             pygame.draw.aalines(screen, (255, 255, 255), True, currHexCorners, 1)

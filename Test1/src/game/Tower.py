@@ -19,6 +19,7 @@ class Tower(GameHex):
     DEFAULT_RANGE = GameMap.HEX_SIZE * 6
     DEFAULT_TURN_SPEED = 4
     DEFAULT_TOWER_IMG = "assets/images/tower1.png"
+    DEFAULT_COOLDOWN = 10
     
     def __init__(self, q, r):
         GameHex.__init__(self, q, r, GameHex.STATE_IMPASSABLE, 0)
@@ -27,6 +28,7 @@ class Tower(GameHex):
         self.center = GameMap.inst().getHexCenter(self)
         self.sprite = ParticleSprite(0, Vector(self.center.x, self.center.y), Vector(0, 0), Vector(0, 0), Tower.DEFAULT_TOWER_IMG)
         self.target = None
+        self.cooldown = 0
         self.sprite.mAngle = 0
         self.sprite.mAngularSpeed = 0
         self.range = Tower.DEFAULT_RANGE
@@ -61,7 +63,9 @@ class Tower(GameHex):
             self.sprite.mAngularSpeed = -Tower.DEFAULT_TURN_SPEED
     
     def fire(self):
-        ProjectileManager.inst().addProjectile(HomingProjectile(self, self.target))
+        if self.cooldown == 0:
+            ProjectileManager.inst().addProjectile(HomingProjectile(self, self.target))
+            self.cooldown = Tower.DEFAULT_COOLDOWN
     
     def angleDiference(self):
         diff = self.center - self.target.mP
@@ -72,6 +76,9 @@ class Tower(GameHex):
     
     def update(self):
         self.sprite.update()
+        
+        if self.cooldown > 0:
+            self.cooldown -= 1
         if self.towerState == Tower.STATE_IDLE:
             
             target = None

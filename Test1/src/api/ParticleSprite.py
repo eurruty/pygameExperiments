@@ -16,6 +16,7 @@ class ParticleSprite(Particle):
         
         # Radio
         aR = (self.mImgRect.width + self.mImgRect.height) // 4
+        self.hitboxRadius = aR
 
         Particle.__init__(self, aM, aR, aP, aS, aA)
 
@@ -63,4 +64,22 @@ class ParticleSprite(Particle):
     # Destroy
     def destroy(self):
         Particle.destroy(self)
-        self.mImg = None 
+        self.mImg = None
+        self.mImgRect = None
+        self.mAngle = None
+        self.hitboxRadius = None
+        self.mAngularSpeed = None
+        self.mAngularAccel = None
+        self.mDisplayImg = None
+        self.mDisplayAngle = None
+        
+    @staticmethod
+    def CheckHitboxCollision(p1, p2):
+        #Max distance
+        dm = p1.hitboxRadius + p2.hitboxRadius
+        #Cheap check first, real check after
+        if abs(p2.mP.x - p1.mP.x) < dm and abs(p2.mP.y - p1.mP.y) < dm:
+            dr = abs(p2.mP - p1.mP)
+            if dr < dm:
+                return True
+        return False

@@ -89,10 +89,20 @@ class Vector(object):
         
         self.x = newX
         self.y = newY
+        
+    def setAngleRads(self, angleRads):
+        self.x = abs(self)
+        self.y = 0
+        self.rotateRads(angleRads)
     
     def rotateDegs(self, angleDegs):
         angleRads = math.radians(angleDegs)
         self.rotateRads(angleRads)
+        
+    def setAngleDegs(self, angleDegs):
+        self.x = abs(self)
+        self.y = 0
+        self.rotateDegs(angleDegs)
     
     def sum(self, v):
         self.x += v.getX()
