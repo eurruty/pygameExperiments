@@ -10,6 +10,8 @@ class Enemy(ParticleSprite):
     ANGULAR_OFFSET = ((ANGULAR_SPEED + 1) // 2)
     HITBOX_RADIUS = 12
     
+    BASE_HP = 100
+    
     STATE_ADVANCE = 0
     STATE_RETREAT = 1
     STATE_SWITCH_STEP = 2
@@ -34,6 +36,9 @@ class Enemy(ParticleSprite):
         self.hitboxRadius = Enemy.HITBOX_RADIUS
         self.mAngle = self.currStepAngle
         self.currStepAngleDiff = 0
+        
+        self.hp = Enemy.BASE_HP
+        self.live = True
         
         self.state = Enemy.STATE_ADVANCE
         
@@ -112,6 +117,9 @@ class Enemy(ParticleSprite):
         
         
     def update(self):
+        if self.hp <= 0:
+            self.state = Enemy.STATE_DIE
+            
         if self.state != None:
                 
             if self.state == Enemy.STATE_ADVANCE:
@@ -121,9 +129,12 @@ class Enemy(ParticleSprite):
                 self.retreat()
             
             if self.state == Enemy.STATE_DIE:
-                self.destroy()
+                self.live = False
                 
         ParticleSprite.update(self)
         
     def render(self, screen):
         ParticleSprite.render(self, screen)
+        
+    def isDead(self):
+        return not self.live

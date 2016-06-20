@@ -30,7 +30,7 @@ testHex = Hex(0, 0)
 mouseCoord = None
 
 hexMap = GameMap.inst()
-#hexMap.printMap()
+hexMap.printMap()
 centerCoord = None
 hexCenter = None
 cornerCoords = None

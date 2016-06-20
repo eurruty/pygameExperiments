@@ -17,7 +17,7 @@ class Tower(GameHex):
     ON_SIGHT_OFFSET = 1
     
     DEFAULT_RANGE = GameMap.HEX_SIZE * 6
-    DEFAULT_TURN_SPEED = 4
+    DEFAULT_TURN_SPEED = 3
     DEFAULT_TOWER_IMG = "assets/images/tower1.png"
     DEFAULT_COOLDOWN = 10
     
@@ -79,6 +79,7 @@ class Tower(GameHex):
         
         if self.cooldown > 0:
             self.cooldown -= 1
+            
         if self.towerState == Tower.STATE_IDLE:
             
             target = None
@@ -98,12 +99,11 @@ class Tower(GameHex):
                             target = currTarget
                             distance = currDistance
                             
-            if target != None:
+            if target != None and not target.isDead():
                 self.setTarget(target)
                 self.towerState = Tower.STATE_AIM
                 
-                
-        if self.target == None:
+        if self.target == None or self.target.isDead():
             self.sprite.mAngularSpeed = 0
             self.towerState = Tower.STATE_IDLE
             
@@ -127,5 +127,5 @@ class Tower(GameHex):
         self.sprite.render(screen)
         
         #debug target
-        if self.target != None:
+        if self.target != None and not self.target.isDead():
             pygame.draw.aalines(screen, (255, 0, 0), False, ((self.center.x, self.center.y), (self.target.mP.x, self.target.mP.y)), 1)

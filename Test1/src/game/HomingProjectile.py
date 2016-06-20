@@ -9,6 +9,7 @@ class HomingProjectile(ParticleSprite):
     DEFAULT_TTL = ((GameMap.HEX_SIZE * 6) // DEFAULT_SPEED) + 10
     DEFAULT_OFFSET = Vector(32, 0)
     DEFAULT_HITBOX_RADIUS = 2
+    DEFAULT_DAMAGE = 5
     
     def __init__(self, source, target, offset=DEFAULT_OFFSET):
         
@@ -53,12 +54,13 @@ class HomingProjectile(ParticleSprite):
         if self.time > HomingProjectile.DEFAULT_TTL:
             self.live = False
             
-        self.updateDirection()
+        if not self.target.isDead():
+            self.updateDirection()
+            if ParticleSprite.CheckHitboxCollision(self, self.target):
+                self.target.hp -= HomingProjectile.DEFAULT_DAMAGE
+                self.live = False
         
         ParticleSprite.update(self)
-        
-        if ParticleSprite.CheckHitboxCollision(self, self.target):
-            self.live = False
             
     def render(self, screen):
         ParticleSprite.render(self, screen)
